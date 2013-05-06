@@ -1,0 +1,10 @@
+CREATE TABLE kijitable WITH DESCRIPTION 'A table for YCSB'
+ROW KEY FORMAT HASH PREFIXED(2)
+WITH LOCALITY GROUP default
+  WITH DESCRIPTION 'Main locality group' (
+  MAXVERSIONS = 1,
+  TTL = FOREVER,
+  INMEMORY = false,
+  COMPRESSED WITH NONE,
+  MAP TYPE FAMILY vals { "type" : "string" } WITH DESCRIPTION 'YCSB values'
+);

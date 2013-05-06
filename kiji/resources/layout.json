@@ -1,0 +1,44 @@
+/*
+   The raw JSON view of table layouts is intended for use by
+   system administrators or for debugging purposes.
+
+   Most users should use the 'kiji-schema-shell' DDL tool to modify
+   your table layouts instead.
+*/
+{
+  "name" : "kijitable",
+  "description" : "A table for YCSB",
+  "keys_format" : {
+    "org.kiji.schema.avro.RowKeyFormat2" : {
+      "encoding" : "FORMATTED",
+      "salt" : {
+        "hash_size" : 2
+      },
+      "components" : [ {
+        "name" : "key",
+        "type" : "STRING"
+      } ]
+    }
+  },
+  "locality_groups" : [ {
+    "id" : 1,
+    "name" : "default",
+    "description" : "Main locality group",
+    "in_memory" : false,
+    "max_versions" : 1,
+    "ttl_seconds" : 2147483647,
+    "compression_type" : "NONE",
+    "families" : [ {
+      "id" : 1,
+      "name" : "vals",
+      "description" : "YCSB values",
+      "map_schema" : {
+        "storage" : "UID",
+        "type" : "INLINE",
+        "value" : "{\"type\": \"string\"}"
+      }
+    } ]
+  } ],
+  "version" : "layout-1.1",
+  "layout_id" : "1"
+}

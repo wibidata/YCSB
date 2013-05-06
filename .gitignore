@@ -1,1 +1,4 @@
 /elasticsearch/target/
+*.iml
+.idea/
+target/

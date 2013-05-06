@@ -35,6 +35,7 @@ DATABASES = {
     "hypertable"   : "com.yahoo.ycsb.db.HypertableClient",
     "infinispan"   : "com.yahoo.ycsb.db.InfinispanClient",
     "jdbc"         : "com.yahoo.ycsb.db.JdbcDBClient",
+    "kiji"         : "com.yahoo.ycsb.db.KijiClient",
     "mapkeeper"    : "com.yahoo.ycsb.db.MapKeeperClient",
     "mongodb"      : "com.yahoo.ycsb.db.MongoDbClient",
     "nosqldb"      : "com.yahoo.ycsb.db.NoSqlDbClient",

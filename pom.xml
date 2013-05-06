@@ -19,16 +19,24 @@
       <groupId>checkstyle</groupId>
       <artifactId>checkstyle</artifactId>
       <version>5.0</version>
+        <!-- Conflicts with guava required by Kiji -->
+        <exclusions>
+            <exclusion>
+                <groupId>com.google.collections</groupId>
+                <artifactId>google-collections</artifactId>
+            </exclusion>
+        </exclusions>
     </dependency>
     <dependency>
       <groupId>org.jdom</groupId>
       <artifactId>jdom</artifactId>
       <version>1.1</version>
     </dependency>
+    <!-- Use guava, which is compatible with google collections -->
     <dependency>
-      <groupId>com.google.collections</groupId>
-      <artifactId>google-collections</artifactId>
-      <version>1.0</version>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>11.0.2</version>
     </dependency>
     <!--
     Nail down slf4j version to 1.6 so that it defaults to no-op logger.
@@ -40,7 +48,7 @@
       <version>1.6.4</version>
     </dependency>
   </dependencies>
- 
+
   <!-- Properties Management -->
   <properties>
     <maven.assembly.version>2.2.1</maven.assembly.version>
@@ -66,6 +74,7 @@
     <module>hypertable</module>
     <module>dynamodb</module>
     <module>elasticsearch</module>
+    <module>kiji</module>
     <!--<module>gemfire</module>-->
     <module>infinispan</module>
     <module>jdbc</module>
