@@ -35,6 +35,13 @@ Then, run the workload:
 
     bin/ycsb run kiji -P workloads/readmostly_smallupdates -p kiji.columnFamily="vals" -s > result_run.dat
 
+### Optional: Loading in parallel
+
+In order to partition the input workload, YCSB lets you run multiple clients in parallel. This allows you to 
+increase the load throughput. You can refer to the instructions
+[here](https://github.com/brianfrankcooper/YCSB/wiki/Running-a-Workload-in-Parallel) for this. Specifically,
+you will need to set the two properties: insertstart, insertcount per client as shown in the example.
+
 ### Understanding the Results
 
 Look [here](https://github.com/brianfrankcooper/YCSB/wiki/Running-a-Workload#step-6-execute-the-workload)
