@@ -1,0 +1,9 @@
+// Sample avdl record. Contains the dbkey and field name.
+
+@namespace("com.yahoo.ycsb.avro")
+protocol YCSBAvroRecords {
+  record SampleRecord {
+    string dbkey;
+    string field;
+  }
+}

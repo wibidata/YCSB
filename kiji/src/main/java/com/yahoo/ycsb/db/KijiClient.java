@@ -27,7 +27,9 @@ import com.google.common.base.Preconditions;
 import com.yahoo.ycsb.ByteIterator;
 import com.yahoo.ycsb.DBException;
 import com.yahoo.ycsb.StringByteIterator;
+import com.yahoo.ycsb.avro.AvroDBClient;
 import com.yahoo.ycsb.measurements.Measurements;
+import org.apache.avro.specific.SpecificRecord;
 import org.apache.hadoop.hbase.HConstants;
 
 import org.kiji.schema.EntityId;
@@ -48,7 +50,7 @@ import org.kiji.schema.hbase.HBaseScanOptions;
  * Kiji Schema is a database schema layer on top of HBase.
  * For more information, please see http://www.kiji.org
  */
-public class KijiClient extends com.yahoo.ycsb.DB {
+public class KijiClient extends com.yahoo.ycsb.DB implements AvroDBClient {
   private Kiji kijiInstance;
   private KijiTable kijiTable;
   private KijiBufferedWriter writer;
@@ -309,5 +311,79 @@ public class KijiClient extends com.yahoo.ycsb.DB {
     } catch (IOException e) {
       throw new DBException(e);
     }
+  }
+
+  @Override
+  public int readAvro(String table, String key, Set<String> fields, HashMap<String, SpecificRecord> result) {
+    if (!table.equals(kijiTable.getName())) {
+      throw new RuntimeException(String.format("Table supplied by read does" +
+          " not match user parameter\ntable supplied = %s, required=%s",
+          table, kijiTable.getName()));
+    }
+
+    final EntityId eid = kijiTable.getEntityId(key);
+
+    final KijiDataRequestBuilder reqBuilder = KijiDataRequest.builder();
+    KijiDataRequestBuilder.ColumnsDef colDef = reqBuilder.newColumnsDef()
+        .withMaxVersions(1);
+    if (fields == null) {
+      colDef.addFamily(columnFamily);
+    } else {
+      for (String qualifiers: fields) {
+        colDef = colDef.add(columnFamily, qualifiers);
+      }
+    }
+    final KijiDataRequest dataRequest = reqBuilder.build();
+
+    try {
+      final KijiRowData rowData = reader.get(eid, dataRequest);
+      if (rowData == null) {
+        return NOT_FOUND;
+      }
+      if (fields != null) {
+        for (String field: fields) {
+          if (!rowData.containsColumn(columnFamily, field)) {
+            return NOT_FOUND;
+          }
+        }
+      }
+      Set<String> qualifiers = rowData.getQualifiers(columnFamily);
+      for (String qualifier: qualifiers) {
+        // We just read in the data. Let the workload check the result.
+        result.put(qualifier,
+            rowData.<SpecificRecord>getMostRecentValue(columnFamily, qualifier));
+      }
+    } catch (IOException ioe) {
+      return DB_ERROR;
+    }
+    return OK;
+  }
+
+  @Override
+  public int updateAvro(String table, String key, HashMap<String, SpecificRecord> values) {
+    return insertAvro(table, key, values);
+  }
+
+  @Override
+  public int insertAvro(String table, String key, HashMap<String, SpecificRecord> values) {
+    Preconditions.checkArgument(!values.isEmpty());
+
+    if (!table.equals(kijiTable.getName())) {
+      throw new RuntimeException(String.format("Table supplied by read does" +
+          " not match user parameter\ntable supplied = %s, required = %s",
+          table, kijiTable.getName()));
+    }
+
+    final EntityId eid = kijiTable.getEntityId(key);
+
+    for (String qualifier : values.keySet()) {
+      try {
+        writer.put(eid, columnFamily, qualifier, values.get(qualifier));
+      } catch (IOException e) {
+        e.printStackTrace();
+        return DB_ERROR;
+      }
+    }
+    return OK;
   }
 }

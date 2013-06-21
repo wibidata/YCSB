@@ -37,7 +37,7 @@ Then, run the workload:
 
 ### Optional: Loading in parallel
 
-In order to partition the input workload, YCSB lets you run multiple clients in parallel. This allows you to 
+In order to partition the input workload, YCSB lets you run multiple clients in parallel. This allows you to
 increase the load throughput. You can refer to the instructions
 [here](https://github.com/brianfrankcooper/YCSB/wiki/Running-a-Workload-in-Parallel) for this. Specifically,
 you will need to set the two properties: insertstart, insertcount per client as shown in the example.
@@ -55,3 +55,55 @@ as [FLUSH] in the measurements.
 Look [here](https://github.com/brianfrankcooper/YCSB/wiki/Core-Properties) for instructions to configure
 the workload. There are additional properties you can use in the CoreWorkload file
 [here](https://github.com/brianfrankcooper/YCSB/blob/master/core/src/main/java/com/yahoo/ycsb/workloads/CoreWorkload.java).
+
+### Custom Schemas
+
+To facilitate custom Avro schemas, we've created a number of new classes:
+
+  * `AvroWorkload` - similar to the CoreWorkload but with Avro data.
+  * `AvroDBClient` - An interface for DB clients that support Avro operations. Presently only Kiji.
+  * `AvroValueController` - An interface for factories to generate Avro records.
+
+To use this, one must take the following steps:
+
+  1. Select an Avro schema to test.
+  2. Make a table layout for it and install it. For example:
+
+      <pre>CREATE TABLE kijitable WITH DESCRIPTION 'A table for YCSB with SampleRecord avro values'
+      ROW KEY FORMAT HASH PREFIXED(2)
+      WITH LOCALITY GROUP default
+        WITH DESCRIPTION 'Main locality group' (
+        MAXVERSIONS = 1,
+        TTL = FOREVER,
+        INMEMORY = false,
+        COMPRESSED WITH NONE,
+        MAP TYPE FAMILY vals CLASS com.yahoo.ycsb.avro.SampleRecord WITH DESCRIPTION 'YCSB values'
+      );</pre>
+   Note the `com.yahoo.ycsb.avro.SampleRecord` in this example. That refers to a generated Avro
+   record included as an example with this distribution.
+  3. Create a workload file to use. This should be like the existing workload files written for
+  CoreWorkload, but should define the property `avrocontrollerclass`, which should be the fully
+  qualified class name of an implementation of `AvroValueController` on the runtime classpath, and
+  define `workload=com.yahoo.ycsb.workloads.AvroWorkload`. Consult
+  `YCSB/workloads/avro_readmostly_smallupdates` for an example. This uses the
+  `com.yahoo.ycsb.avro.SampleAvroValueController` class included in this codebase. Here's an
+  excerpt:
+
+      <pre>
+      # --AVRO SPECIFIC SECTION--
+      # Note that this workload is AvroWorkload instead of CoreWorkload.
+      workload=com.yahoo.ycsb.workloads.AvroWorkload
+      # This points to a simple controller which outputs an Avro schema with two string fields
+      avrocontrollerclass=com.yahoo.ycsb.avro.SampleAvroValueController
+      </pre>
+
+  4. Use the workload to load the table. E.g.:
+
+        bin/ycsb load kiji -P workloads/avro_readmostly_smallupdates -p kiji.columnFamily="vals" -s > result_load.dat
+
+  5. Use the workload to run the experiment.
+
+  6. To compare different schemas, use two different tables each with a map family of the
+  appropriate schema. Write two different workload files, each pointing to a different
+  `AvroValueController` (or add an `AvroValueController` class that can generate different kinds of
+  schemas based on some property).
