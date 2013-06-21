@@ -6,16 +6,18 @@
     <artifactId>root</artifactId>
     <version>0.1.4</version>
   </parent>
-  
+
   <artifactId>core</artifactId>
   <name>Core YCSB</name>
   <packaging>jar</packaging>
 
   <properties>
      <jackson.api.version>1.9.4</jackson.api.version>
+     <avro.version>1.7.2</avro.version>
+     <maven-compiler-plugin.version>1.6</maven-compiler-plugin.version>
   </properties>
 
-  <dependencies>	
+  <dependencies>
     <dependency>
       <groupId>org.codehaus.jackson</groupId>
       <artifactId>jackson-mapper-asl</artifactId>
@@ -32,6 +34,40 @@
       <version>6.1.1</version>
       <scope>test</scope>
     </dependency>
-  </dependencies>	
-
+      <dependency>
+          <groupId>org.apache.avro</groupId>
+          <artifactId>avro</artifactId>
+          <version>${avro.version}</version>
+      </dependency>
+  </dependencies>
+  <build>
+      <plugins>
+        <plugin>
+            <groupId>org.apache.avro</groupId>
+            <artifactId>avro-maven-plugin</artifactId>
+            <version>${avro.version}</version>
+            <executions>
+                <execution>
+                    <phase>generate-sources</phase>
+                    <goals>
+                        <goal>schema</goal>
+                        <goal>idl-protocol</goal>
+                    </goals>
+                </execution>
+            </executions>
+            <configuration>
+                <!-- Avro string compiled to java.lang.String instead of CharSequence -->
+                <stringType>String</stringType>
+            </configuration>
+        </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+                <source>${maven-compiler-plugin.version}</source>
+                <target>${maven-compiler-plugin.version}</target>
+            </configuration>
+        </plugin>
+      </plugins>
+  </build>
 </project>

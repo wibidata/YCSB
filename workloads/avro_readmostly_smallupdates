@@ -1,0 +1,43 @@
+# Copyright (c) 2010 Yahoo! Inc. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you
+# may not use this file except in compliance with the License. You
+# may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+# implied. See the License for the specific language governing
+# permissions and limitations under the License. See accompanying
+# LICENSE file.
+
+# Read mostly workload with few updates
+#
+#   Read/update ratio: 90/10
+#   Default data size: 2 KB records (10 fields, 200 bytes each, plus key)
+#   Request distribution is uniform by default
+#   Insert order is hashed by default
+#   threadcount * recordcount = number of rows
+
+recordcount=1000
+operationcount=1000000
+threadcount=10
+
+# --AVRO SPECIFIC SECTION--
+# Note that this workload is AvroWorkload instead of CoreWorkload.
+workload=com.yahoo.ycsb.workloads.AvroWorkload
+# This points to a simple controller which outputs an Avro schema with two string fields
+avrocontrollerclass=com.yahoo.ycsb.avro.SampleAvroValueController
+
+readallfields=false
+readproportion=0.90
+updateproportion=0.07
+readmodifywriteproportion=0.03
+table=kijitable
+
+# Percentage data items that constitute the hot set.
+hotspotdatafraction=0
+# Percentage operations that access the hot set
+hotspotopnfraction=0

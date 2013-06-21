@@ -1,18 +1,18 @@
-/**                                                                                                                                                                                
- * Copyright (c) 2010 Yahoo! Inc. All rights reserved.                                                                                                                             
- *                                                                                                                                                                                 
- * Licensed under the Apache License, Version 2.0 (the "License"); you                                                                                                             
- * may not use this file except in compliance with the License. You                                                                                                                
- * may obtain a copy of the License at                                                                                                                                             
- *                                                                                                                                                                                 
- * http://www.apache.org/licenses/LICENSE-2.0                                                                                                                                      
- *                                                                                                                                                                                 
- * Unless required by applicable law or agreed to in writing, software                                                                                                             
- * distributed under the License is distributed on an "AS IS" BASIS,                                                                                                               
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or                                                                                                                 
- * implied. See the License for the specific language governing                                                                                                                    
- * permissions and limitations under the License. See accompanying                                                                                                                 
- * LICENSE file.                                                                                                                                                                   
+/**
+ * Copyright (c) 2010 Yahoo! Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License. You
+ * may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * permissions and limitations under the License. See accompanying
+ * LICENSE file.
  */
 
 package com.yahoo.ycsb;
@@ -22,12 +22,14 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 
+import com.yahoo.ycsb.avro.AvroDBClient;
 import com.yahoo.ycsb.measurements.Measurements;
+import org.apache.avro.specific.SpecificRecord;
 
 /**
  * Wrapper around a "real" DB that measures latencies and counts return codes.
  */
-public class DBWrapper extends DB
+public class DBWrapper extends DB implements AvroDBClient
 {
 	DB _db;
 	Measurements _measurements;
@@ -113,7 +115,7 @@ public class DBWrapper extends DB
 		_measurements.reportReturnCode("SCAN",res);
 		return res;
 	}
-	
+
 	/**
 	 * Update a record in the database. Any field/value pairs in the specified values HashMap will be written into the record with the specified
 	 * record key, overwriting any existing values with the same field name.
@@ -153,7 +155,7 @@ public class DBWrapper extends DB
 	}
 
 	/**
-	 * Delete a record from the database. 
+	 * Delete a record from the database.
 	 *
 	 * @param table The name of the table
 	 * @param key The record key of the record to delete.
@@ -168,4 +170,41 @@ public class DBWrapper extends DB
 		_measurements.reportReturnCode("DELETE",res);
 		return res;
 	}
+
+
+  @Override
+  public int readAvro(String table, String key, Set<String> fields, HashMap<String, SpecificRecord> result) {
+    // It's an error to call this with a _db that doesn't implement AvroDBClient.
+    AvroDBClient adb = (AvroDBClient)_db;
+    long st=System.nanoTime();
+    int res=adb.readAvro(table,key,fields,result);
+    long en=System.nanoTime();
+    _measurements.measure("AVROREAD",(int)((en-st)/1000));
+    _measurements.reportReturnCode("AVROREAD",res);
+    return res;
+  }
+
+  @Override
+  public int updateAvro(String table, String key, HashMap<String, SpecificRecord> values) {
+    // It's an error to call this with a _db that doesn't implement AvroDBClient.
+    AvroDBClient adb = (AvroDBClient)_db;
+    long st=System.nanoTime();
+    int res=adb.updateAvro(table,key,values);
+    long en=System.nanoTime();
+    _measurements.measure("AVROUPDATE",(int)((en-st)/1000));
+    _measurements.reportReturnCode("AVROUPDATE",res);
+    return res;
+  }
+
+  @Override
+  public int insertAvro(String table, String key, HashMap<String, SpecificRecord> values) {
+    // It's an error to call this with a _db that doesn't implement AvroDBClient.
+    AvroDBClient adb = (AvroDBClient)_db;
+    long st=System.nanoTime();
+    int res=adb.insertAvro(table,key,values);
+    long en=System.nanoTime();
+    _measurements.measure("AVROINSERT",(int)((en-st)/1000));
+    _measurements.reportReturnCode("AVROINSERT",res);
+    return res;
+  }
 }
