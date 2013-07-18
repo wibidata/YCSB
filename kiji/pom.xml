@@ -19,8 +19,23 @@
     <dependency>
       <groupId>org.kiji.framework</groupId>
       <artifactId>kiji-framework</artifactId>
-      <version>1.0.3</version>
+      <version>1.1.1-SNAPSHOT</version>
       <scope>compile</scope>
+      <!-- 
+        This exclusion avoids an issue where a fat jar packaging can't
+        accomodate multiple bridge artifacts due to overwriting
+        of the META-INF directory inside the jar.
+        Here, we're attempting to only include the cdh42mr1-bridge.
+        TODO: Experiment with a better packaging format in the
+        assembly plugin to create a kiji backend which is more
+        robust.
+       -->
+      <exclusions>
+          <exclusion>
+              <groupId>org.kiji.schema</groupId>
+              <artifactId>kiji-schema-cdh41mr1-bridge</artifactId>
+          </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
 

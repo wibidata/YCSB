@@ -11,6 +11,9 @@ For more information, please see www.kiji.org
 Install Hadoop, Hbase and Kiji on your cluster.
 For instructions, see http://www.kiji.org/getstarted/#Downloads
 
+It is recommended that you increase the max number of zookeeper client
+connections to accomodate the parralelism of YCSB.
+
 ### 2. Set Up YCSB and create a Kiji table
 
 Clone the YCSB git repository and compile:
@@ -23,7 +26,9 @@ Clone the YCSB git repository and compile:
     --table=kiji://.env/default/kijitable
 
 Note: In order to ensure that the appropriate hbase-site.xml file in your environment gets picked
-up, you might have to move the $YCSB_HOME/hbase/src/main/conf/hbase-site.xml file out of the way.
+up, you might have to move the `$YCSB_HOME/hbase/src/main/conf/hbase-site.xml` file out of the way.
+You can add a `conf` directory under `$YCSB_HOME/kiji` with the settings for connecting to your
+cluster.
 
 ### 3. Run YCSB
 

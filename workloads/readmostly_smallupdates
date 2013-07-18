@@ -21,9 +21,9 @@
 #   Insert order is hashed by default
 #   threadcount * recordcount = number of rows
 
-recordcount=1000000
+recordcount=100000
 operationcount=1000000
-threadcount=100
+threadcount=10
 workload=com.yahoo.ycsb.workloads.CoreWorkload
 
 fieldlength=200
