@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Properties;
 
 import com.yahoo.ycsb.DB;
+import com.yahoo.ycsb.DBWrapper;
 import com.yahoo.ycsb.WorkloadException;
 import com.yahoo.ycsb.avro.AvroDBClient;
 import com.yahoo.ycsb.avro.AvroValueController;

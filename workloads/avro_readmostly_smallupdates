@@ -23,7 +23,7 @@
 
 recordcount=1000
 operationcount=1000000
-threadcount=100
+threadcount=10
 
 # --AVRO SPECIFIC SECTION--
 # Note that this workload is AvroWorkload instead of CoreWorkload.

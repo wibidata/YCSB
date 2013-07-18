@@ -12,6 +12,11 @@ public class SampleAvroValueController implements AvroValueController{
   public SpecificRecord generateRecord(String dbKey, String fieldKey) {
     SampleRecord record = new SampleRecord();
     record.setDbkey(dbKey);
+    // We don't permit nulls in the record.
+    if (null == fieldKey) {
+      fieldKey = "";
+    }
+    record.setField(fieldKey);
     return record;
   }
 
