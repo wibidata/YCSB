@@ -19,8 +19,14 @@
     <dependency>
       <groupId>org.kiji.framework</groupId>
       <artifactId>kiji-framework</artifactId>
-      <version>1.0.3</version>
+      <version>1.1.1-SNAPSHOT</version>
       <scope>compile</scope>
+      <exclusions>
+          <exclusion>
+              <groupId>org.kiji.schema</groupId>
+              <artifactId>kiji-schema-cdh41mr1-bridge</artifactId>
+          </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
 
