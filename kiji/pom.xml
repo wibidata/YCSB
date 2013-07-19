@@ -20,7 +20,7 @@
       <groupId>org.kiji.framework</groupId>
       <artifactId>kiji-framework</artifactId>
       <version>1.1.1-SNAPSHOT</version>
-     <scope>compile</scope>
+      <scope>compile</scope>
       <!-- 
         This exclusion avoids an issue where a fat jar packaging can't
         accomodate multiple bridge artifacts due to overwriting
