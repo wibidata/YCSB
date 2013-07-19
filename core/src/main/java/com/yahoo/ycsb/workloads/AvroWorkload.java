@@ -19,7 +19,7 @@ import org.apache.avro.specific.SpecificRecord;
  * Properties are the same as the CoreWorkload with the following exceptions:
  *
  * <UL>
- * <LI><b>fieldlength</b>: this field is unused.
+ * <LI><b>fieldlength</b>: this field is currently unused.
  * <LI><b>avrocontrollerclass</b>: this should be a fully qualified class name that implements
  *     {@link com.yahoo.ycsb.avro.AvroValueController}.
  * </ul>
