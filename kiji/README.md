@@ -66,13 +66,15 @@ the workload. There are additional properties you can use in the CoreWorkload fi
 To facilitate custom Avro schemas, we've created a number of new classes:
 
   * `AvroWorkload` - similar to the CoreWorkload but with Avro data.
-  * `AvroDBClient` - An interface for DB clients that support Avro operations. Presently only Kiji.
-  * `AvroValueController` - An interface for factories to generate Avro records.
+  * `AvroDBClient` - An interface for DB clients that support Avro operations. Presently only
+  implemented for Kiji. Does not yet implement deletes.
+  * `AvroValueController` - An interface for factories to generate Avro records. Subclass this to
+  use different schemas.
 
 To use this, one must take the following steps:
 
   1. Select an Avro schema to test.
-  2. Make a table layout for it and install it. For example:
+  2. Make a table layout for it and install it. For example on Kiji you could use this DDL command:
 
       <pre>CREATE TABLE kijitable WITH DESCRIPTION 'A table for YCSB with SampleRecord avro values'
       ROW KEY FORMAT HASH PREFIXED(2)
@@ -85,14 +87,19 @@ To use this, one must take the following steps:
         MAP TYPE FAMILY vals CLASS com.yahoo.ycsb.avro.SampleRecord WITH DESCRIPTION 'YCSB values'
       );</pre>
    Note the `com.yahoo.ycsb.avro.SampleRecord` in this example. That refers to a generated Avro
-   record included as an example with this distribution.
-  3. Create a workload file to use. This should be like the existing workload files written for
-  CoreWorkload, but should define the property `avrocontrollerclass`, which should be the fully
-  qualified class name of an implementation of `AvroValueController` on the runtime classpath, and
-  define `workload=com.yahoo.ycsb.workloads.AvroWorkload`. Consult
+   record included as an example with this distribution. At the moment, generic records are not
+   supported.
+  3. Write an implementation of AvroValueController to generate and verify values of your desired
+  Avro record. Look at `com.yahoo.ycsb.avro.SampleAvroValueController` for an example. This
+  controller generates values for the `com.yahoo.ycsb.avro.SampleRecord` class mentioned above. This
+  Controller class must be on your classpath when running YCSB.
+  4. Create a workload file to use. This should look like the existing workload files written for
+  CoreWorkload, but you should define set two properties: `avrocontrollerclass`, which should be
+  the fully qualified class name of the implementation of `AvroValueController` you used in step 3,
+  and set workload to AvroWorkload (i.e. `workload=com.yahoo.ycsb.workloads.AvroWorkload`). Consult
   `YCSB/workloads/avro_readmostly_smallupdates` for an example. This uses the
-  `com.yahoo.ycsb.avro.SampleAvroValueController` class included in this codebase. Here's an
-  excerpt:
+  `com.yahoo.ycsb.avro.SampleAvroValueController` class included in this codebase. Here's the
+  relevant excerpt from the workload definition:
 
       <pre>
       # --AVRO SPECIFIC SECTION--
@@ -102,13 +109,13 @@ To use this, one must take the following steps:
       avrocontrollerclass=com.yahoo.ycsb.avro.SampleAvroValueController
       </pre>
 
-  4. Use the workload to load the table. E.g.:
+  5. Use the workload to load the table. E.g.:
 
         bin/ycsb load kiji -P workloads/avro_readmostly_smallupdates -p kiji.columnFamily="vals" -s > result_load.dat
 
-  5. Use the workload to run the experiment.
+  6. Use the workload to run the experiment.
 
-  6. To compare different schemas, use two different tables each with a map family of the
+  7. To compare different schemas, use two different tables each with a map family of the
   appropriate schema. Write two different workload files, each pointing to a different
   `AvroValueController` (or add an `AvroValueController` class that can generate different kinds of
   schemas based on some property).
